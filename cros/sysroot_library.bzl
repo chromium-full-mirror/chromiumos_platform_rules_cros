@@ -13,14 +13,6 @@ def _find_compiler(repo_ctx):
     else:
         fail("Unable to locate compiler: {}".format(compiler_name))
 
-def _find_linker(repo_ctx):
-    linker_name = repo_ctx.os.environ.get("LD")
-    linker = _execute_bash(repo_ctx, "type -p {}".format(linker_name))
-    if linker:
-        return linker
-    else:
-        fail("Unable to locate linker: {}".format(linker_name))
-
 def _get_system_include_paths(repo_ctx):
     compiler = _find_compiler(repo_ctx)
     sysroot = repo_ctx.os.environ.get("SYSROOT")
@@ -41,10 +33,10 @@ def _find_lib_path(repo_ctx, archive_names):
     for archive_name in archive_names:
         cmd = """
             SYSROOT="{sysroot}" \\
-            {compiler} -x c - -o /dev/null -Wl,--trace -l{archive_name} -nostdlib <<<'int main(){{}}' | \\
+            {compiler} -x c - -o /dev/null -Wl,--trace -l:{archive_name} -nostdlib <<<'int main(){{}}' | \\
             sed -e '/.*\\.o$/d'
             """.format(
-            sysroot = sysroot,
+            sysroot = sysroot or "",
             compiler = compiler,
             archive_name = archive_name,
         )
@@ -53,9 +45,11 @@ def _find_lib_path(repo_ctx, archive_names):
             return (archive_name, path)
     return (None, None)
 
-def _find_header_path(repo_ctx, header_name):
+def _find_header_path(repo_ctx, header_name, includes):
     system_includes = _get_system_include_paths(repo_ctx)
-    for directory in system_includes:
+    all_includes = includes + system_includes
+
+    for directory in all_includes:
         cmd = """
               test -f "{dir}/{hdr}" && echo "{dir}/{hdr}"
               """.format(dir = directory, hdr = header_name)
@@ -66,6 +60,7 @@ def _find_header_path(repo_ctx, header_name):
 
 def _sysroot_library_impl(repo_ctx):
     repo_name = repo_ctx.attr.name
+    includes = repo_ctx.attr.includes
     hdrs = repo_ctx.attr.hdrs
     optional_hdrs = repo_ctx.attr.optional_hdrs
     deps = repo_ctx.attr.deps
@@ -74,12 +69,10 @@ def _sysroot_library_impl(repo_ctx):
 
     static_lib_name, static_lib_path = _find_lib_path(
         repo_ctx,
-        repo_name,
         static_lib_names,
     )
     shared_lib_name, shared_lib_path = _find_lib_path(
         repo_ctx,
-        repo_name,
         shared_lib_names,
     )
 
@@ -89,7 +82,7 @@ def _sysroot_library_impl(repo_ctx):
     hdr_names = []
     hdr_paths = []
     for hdr in hdrs:
-        hdr_path = _find_header_path(repo_ctx, hdr)
+        hdr_path = _find_header_path(repo_ctx, hdr, includes)
         if hdr_path:
             repo_ctx.symlink(hdr_path, hdr)
             hdr_names.append(hdr)
@@ -98,7 +91,7 @@ def _sysroot_library_impl(repo_ctx):
             fail("Could not find required header {}".format(hdr))
 
     for hdr in optional_hdrs:
-        hdr_path = _find_header_path(repo_ctx, hdr)
+        hdr_path = _find_header_path(repo_ctx, hdr, includes)
         if hdr_path:
             repo_ctx.symlink(hdr_path, hdr)
             hdr_names.append(hdr)
@@ -250,8 +243,8 @@ alias(
             ),
     )
 
-system_library = repository_rule(
-    implementation = _system_library_impl,
+sysroot_library = repository_rule(
+    implementation = _sysroot_library_impl,
     local = True,
     remotable = True,
     attrs = {
@@ -265,6 +258,9 @@ List of names of system libraries this target depends upon.
 List of the library's public headers which must be imported.
 """,
         ),
+        "includes": attr.string_list(doc = """
+List of directories that should be browsed when looking for headers.
+"""),
         "optional_hdrs": attr.string_list(doc = """
 List of the library's headers that should be imported if present.
 """),
