@@ -7,4 +7,5 @@ Chrome OS.
 
 ## Documentation
 
-TODO
+The code is this directory is experimental and under active development.
+Stability and functionality is not guaranteed :)
