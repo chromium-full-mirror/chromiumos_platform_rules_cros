@@ -1,12 +1,12 @@
-load(":local_cc_toolchain.bzl", "local_cc_toolchain_config")
+load(":host_cc_toolchain.bzl", "cros_sdk_host_cc_toolchain_config")
 
 filegroup(
     name = "none",
     srcs = [],
 )
 
-local_cc_toolchain_config(
-    name = "local_toolchain_semantics",
+cros_sdk_host_cc_toolchain_config(
+    name = "host_toolchain_semantics",
 )
 
 cc_toolchain(
@@ -17,7 +17,7 @@ cc_toolchain(
     linker_files = ":none",
     objcopy_files = ":none",
     strip_files = ":none",
-    toolchain_config = ":local_toolchain_semantics",
+    toolchain_config = ":host_toolchain_semantics",
 )
 
 toolchain(

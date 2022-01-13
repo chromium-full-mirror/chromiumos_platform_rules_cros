@@ -79,17 +79,16 @@ def _impl(ctx):
         abi_version = "local",
         abi_libc_version = "local",
         action_configs = action_configs,
-        builtin_sysroot = "/",
         cxx_builtin_include_directories = [
             "/usr/include/c++/v1",
             "/usr/lib64/clang/13.0.0/include",
-            "%sysroot%/usr/local/include",
-            "%sysroot%/include",
-            "%sysroot%/usr/include",
+            "/usr/local/include",
+            "/include",
+            "/usr/include",
         ],
     )
 
-local_cc_toolchain_config = rule(
+cros_sdk_host_cc_toolchain_config = rule(
     implementation = _impl,
     attrs = {},
     provides = [CcToolchainConfigInfo],
