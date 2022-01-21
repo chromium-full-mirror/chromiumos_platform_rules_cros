@@ -1,5 +1,26 @@
 load("@bazel_tools//tools/build_defs/cc:action_names.bzl", "ACTION_NAMES")
-load("@bazel_tools//tools/cpp:cc_toolchain_config_lib.bzl", "action_config", "tool")
+load(
+    "@bazel_tools//tools/cpp:cc_toolchain_config_lib.bzl",
+    "action_config",
+    "flag_group",
+    "flag_set",
+    "tool",
+)
+
+_DEFAULT_LINKER_FLAGS = [
+    flag_set(
+        flag_groups = [
+            flag_group(
+                flags = [
+                    "-Wl,-znow",
+                    "-Wl,-zrelro",
+                    "-Wl,--no-rosegment",
+                    "-Wl,--hash-style=gnu",
+                ],
+            ),
+        ],
+    ),
+]
 
 def _impl(ctx):
     action_configs = [
@@ -7,7 +28,7 @@ def _impl(ctx):
             action_name = ACTION_NAMES.cpp_compile,
             tools = [
                 tool(
-                    path = "/usr/bin/x86_64-pc-linux-gnu-clang++",
+                    path = "/usr/bin/x86_64-cros-linux-gnu-clang++",
                 ),
             ],
         ),
@@ -15,49 +36,51 @@ def _impl(ctx):
             action_name = ACTION_NAMES.c_compile,
             tools = [
                 tool(
-                    path = "/usr/bin/x86_64-pc-linux-gnu-clang",
+                    path = "/usr/bin/x86_64-cros-linux-gnu-clang",
                 ),
             ],
         ),
         action_config(
             action_name = ACTION_NAMES.cpp_link_executable,
-            enabled = True,
             tools = [
                 tool(
-                    path = "/usr/bin/x86_64-pc-linux-gnu-clang++",
+                    path = "/usr/bin/x86_64-cros-linux-gnu-clang++",
                 ),
             ],
+            flag_sets = _DEFAULT_LINKER_FLAGS,
         ),
         action_config(
             action_name = ACTION_NAMES.cpp_link_dynamic_library,
-            enabled = True,
             tools = [
                 tool(
-                    path = "/usr/bin/x86_64-pc-linux-gnu-clang++",
+                    path = "/usr/bin/x86_64-cros-linux-gnu-clang++",
                 ),
             ],
+            flag_sets = _DEFAULT_LINKER_FLAGS,
         ),
         action_config(
             action_name = ACTION_NAMES.cpp_link_nodeps_dynamic_library,
             tools = [
                 tool(
-                    path = "/usr/bin/x86_64-pc-linux-gnu-clang++",
+                    path = "/usr/bin/x86_64-cros-linux-gnu-clang++",
                 ),
             ],
+            flag_sets = _DEFAULT_LINKER_FLAGS,
         ),
         action_config(
             action_name = ACTION_NAMES.cpp_link_static_library,
             tools = [
                 tool(
-                    path = "/usr/bin/x86_64-pc-linux-gnu-clang++",
+                    path = "/usr/bin/x86_64-cros-linux-gnu-clang++",
                 ),
             ],
+            flag_sets = _DEFAULT_LINKER_FLAGS,
         ),
         action_config(
             action_name = ACTION_NAMES.strip,
             tools = [
                 tool(
-                    path = "/usr/bin/x86_64-pc-linux-gnu-strip",
+                    path = "/usr/bin/x86_64-cros-linux-gnu-strip",
                 ),
             ],
         ),
@@ -70,7 +93,7 @@ def _impl(ctx):
     # C++ toolchain behavior.
     return cc_common.create_cc_toolchain_config_info(
         ctx = ctx,
-        toolchain_identifier = "cros-sdk-x86_64-pc-linux-gnu",
+        toolchain_identifier = "cros-sdk-x86_64-cros-linux-gnu",
         host_system_name = "linux",
         target_system_name = "local",
         target_cpu = "x86_64",
@@ -79,16 +102,22 @@ def _impl(ctx):
         abi_version = "local",
         abi_libc_version = "local",
         action_configs = action_configs,
+        # TODO(cjmcdonald): Make builtin_sysroot an argument for the rule and figure out how
+        #                   to pass it in.
+        builtin_sysroot = "/",
         cxx_builtin_include_directories = [
-            "/usr/include/c++/v1",
-            "/usr/lib64/clang/13.0.0/include",
-            "/usr/local/include",
-            "/include",
-            "/usr/include",
+            "/usr/lib64/clang/13.0.0",
+            "/usr/lib64/gcc/x86_64-cros-linux-gnu/10.2.0",
+            "/usr/x86_64-cros-linux-gnu/lib64",
+            "%sysroot%/lib64",
+            "%sysroot%/usr/lib64",
+            "/usr/x86_64-cros-linux-gnu/lib",
+            "%sysroot%/lib",
+            "%sysroot%/usr/lib",
         ],
     )
 
-cros_sdk_host_cc_toolchain_config = rule(
+board_cc_toolchain_config = rule(
     implementation = _impl,
     attrs = {},
     provides = [CcToolchainConfigInfo],

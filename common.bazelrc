@@ -18,7 +18,7 @@ build --action_env=BAZEL_DO_NOT_DETECT_CPP_TOOLCHAIN=1
 
 # Declare a cc_toolchain_suite to work around 
 # https://github.com/bazelbuild/bazel/issues/12712
-build --crosstool_top="@rules_cros//cros/toolchain:cros-cc-toolchain-suite"
+build --crosstool_top="@rules_cros//cros/toolchain/cc:cros-cc-toolchain-suite"
 
 # Lock down the PATH variable in actions to /usr/bin and /usr/local/bin.
 build --experimental_strict_action_env
