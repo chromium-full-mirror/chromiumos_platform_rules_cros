@@ -5,5 +5,15 @@ platform(
     constraint_values = [
         "@platforms//os:linux",
         "@platforms//cpu:x86_64",
+        "//cros/platforms/vendor:pc",
+    ],
+)
+
+platform(
+    name = "cros_x86_64",
+    constraint_values = [
+        "@platforms//os:linux",
+        "@platforms//cpu:x86_64",
+        "//cros/platforms/vendor:cros",
     ],
 )
