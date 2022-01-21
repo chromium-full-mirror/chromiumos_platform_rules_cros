@@ -8,6 +8,11 @@ build --incompatible_enable_cc_toolchain_resolution
 build --experimental_starlark_cc_import
 build --experimental_repo_remote_exec
 
+# Required for rules_rust to successfully build proc macros while cross-compiling.
+# See the following bug for more context:
+# https://github.com/bazelbuild/rules_rust/issues/327
+build --experimental_exec_groups
+
 # Disable local cpp toolchain detection, as we declare it explicitly.
 build --action_env=BAZEL_DO_NOT_DETECT_CPP_TOOLCHAIN=1
 
