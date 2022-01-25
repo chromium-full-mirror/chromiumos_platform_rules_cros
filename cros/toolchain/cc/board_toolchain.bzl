@@ -106,7 +106,7 @@ def _impl(ctx):
         #                   to pass it in.
         builtin_sysroot = "/",
         cxx_builtin_include_directories = [
-            "/usr/lib64/clang/13.0.0",
+            "/usr/lib64/clang/14.0.0",
             "/usr/lib64/gcc/x86_64-cros-linux-gnu/10.2.0",
             "/usr/x86_64-cros-linux-gnu/lib64",
             "%sysroot%/lib64",

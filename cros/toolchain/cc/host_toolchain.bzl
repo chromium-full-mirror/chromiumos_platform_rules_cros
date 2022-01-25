@@ -104,7 +104,7 @@ def _impl(ctx):
         action_configs = action_configs,
         cxx_builtin_include_directories = [
             "/usr/include/c++/v1",
-            "/usr/lib64/clang/13.0.0/include",
+            "/usr/lib64/clang/14.0.0/include",
             "/usr/local/include",
             "/include",
             "/usr/include",
