@@ -27,8 +27,8 @@ def rules_cros_dependencies():
 
     rules_cros_toolchains()
 
-def rules_cros_toolchains():
-    cros_rust_repository(name = "cros")
+def rules_cros_toolchains(name = "cros_toolchains"):
+    cros_rust_repository(name = name)
 
     native.register_toolchains(
         "@rules_cros//cros/toolchain/cc:cros-sdk-x86_64-pc-linux-gnu-cc-toolchain",
