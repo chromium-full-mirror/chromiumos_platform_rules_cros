@@ -1,6 +1,11 @@
 # Assume we're building on x86_64 Linux for now.
 build --host_platform @rules_cros//cros/platforms:linux_x86_64
 
+# Use the target platform in the bazel-out/ output directory name fragment
+# instead of the CPU (darwin, k8). This avoids thrashing the output directory
+# when switching between top level target --platforms values.
+build --experimental_platform_in_output_dir
+
 # Use the JDK provided by the CrOS SDK instead of trying to download a bundled
 # remote JDK.
 build --tool_java_runtime_version=11
