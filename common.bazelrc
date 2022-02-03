@@ -1,6 +1,10 @@
 # Assume we're building on x86_64 Linux for now.
 build --host_platform @rules_cros//cros/platforms:linux_x86_64
 
+# Use the JDK provided by the CrOS SDK instead of trying to download a bundled
+# remote JDK.
+build --tool_java_runtime_version=11
+
 # Use toolchain resolution to find the cc toolchain.
 build --incompatible_enable_cc_toolchain_resolution
 
