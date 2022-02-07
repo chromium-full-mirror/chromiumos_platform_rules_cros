@@ -17,10 +17,12 @@ _TRIPLES = ["x86_64-pc-linux-gnu", "x86_64-cros-linux-gnu"]
 
 _RUSTC_TOOLS = ["rustc", "cargo", "clippy-driver", "rustdoc", "rustfmt"]
 
+# TODO: Remove the default public visibility once the toolchains are also
+#       declared in this generated repository.
 _RUSTLIB_BUILD_FILE_TEMPLATE = """\
 load("@rules_rust//rust:toolchain.bzl", "rust_stdlib_filegroup")
 
-package(default_visibility = ["@rules_cros//cros/toolchain:__subpackages__",])
+package(default_visibility = ["//visibility:public"])
 
 filegroup(
     name = "rustc_libs",
