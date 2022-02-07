@@ -104,16 +104,13 @@ def _impl(ctx):
         action_configs = action_configs,
         # TODO(cjmcdonald): Make builtin_sysroot an argument for the rule and figure out how
         #                   to pass it in.
-        builtin_sysroot = "/",
+        builtin_sysroot = "/usr/x86_64-cros-linux-gnu",
         cxx_builtin_include_directories = [
             "/usr/lib64/clang/14.0.0",
             "/usr/lib64/gcc/x86_64-cros-linux-gnu/10.2.0",
-            "/usr/x86_64-cros-linux-gnu/lib64",
-            "%sysroot%/lib64",
-            "%sysroot%/usr/lib64",
-            "/usr/x86_64-cros-linux-gnu/lib",
-            "%sysroot%/lib",
-            "%sysroot%/usr/lib",
+            "%sysroot%/usr/local/include",
+            "%sysroot%/include",
+            "%sysroot%/usr/include",
         ],
     )
 
