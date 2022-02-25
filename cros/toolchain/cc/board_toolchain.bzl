@@ -23,12 +23,20 @@ _DEFAULT_LINKER_FLAGS = [
 ]
 
 def _impl(ctx):
+    arch = ctx.attr.cpu_arch
+    if arch == "armv7a":
+        abi = "gnueabihf"
+    else:
+        abi = "gnu"
+
+    triple = "{}-cros-linux-{}".format(arch, abi)
+    usr_bin_triple = "/usr/bin/" + triple + "-"
     action_configs = [
         action_config(
             action_name = ACTION_NAMES.cpp_compile,
             tools = [
                 tool(
-                    path = "/usr/bin/x86_64-cros-linux-gnu-clang++",
+                    path = usr_bin_triple + "clang++",
                 ),
             ],
         ),
@@ -36,7 +44,7 @@ def _impl(ctx):
             action_name = ACTION_NAMES.c_compile,
             tools = [
                 tool(
-                    path = "/usr/bin/x86_64-cros-linux-gnu-clang",
+                    path = usr_bin_triple + "clang",
                 ),
             ],
         ),
@@ -44,7 +52,7 @@ def _impl(ctx):
             action_name = ACTION_NAMES.cpp_link_executable,
             tools = [
                 tool(
-                    path = "/usr/bin/x86_64-cros-linux-gnu-clang++",
+                    path = usr_bin_triple + "clang++",
                 ),
             ],
             flag_sets = _DEFAULT_LINKER_FLAGS,
@@ -53,7 +61,7 @@ def _impl(ctx):
             action_name = ACTION_NAMES.cpp_link_dynamic_library,
             tools = [
                 tool(
-                    path = "/usr/bin/x86_64-cros-linux-gnu-clang++",
+                    path = usr_bin_triple + "clang++",
                 ),
             ],
             flag_sets = _DEFAULT_LINKER_FLAGS,
@@ -62,7 +70,7 @@ def _impl(ctx):
             action_name = ACTION_NAMES.cpp_link_nodeps_dynamic_library,
             tools = [
                 tool(
-                    path = "/usr/bin/x86_64-cros-linux-gnu-clang++",
+                    path = usr_bin_triple + "clang++",
                 ),
             ],
             flag_sets = _DEFAULT_LINKER_FLAGS,
@@ -71,7 +79,7 @@ def _impl(ctx):
             action_name = ACTION_NAMES.cpp_link_static_library,
             tools = [
                 tool(
-                    path = "/usr/bin/x86_64-cros-linux-gnu-clang++",
+                    path = usr_bin_triple + "clang++",
                 ),
             ],
             flag_sets = _DEFAULT_LINKER_FLAGS,
@@ -80,7 +88,7 @@ def _impl(ctx):
             action_name = ACTION_NAMES.strip,
             tools = [
                 tool(
-                    path = "/usr/bin/x86_64-cros-linux-gnu-strip",
+                    path = usr_bin_triple + "strip",
                 ),
             ],
         ),
@@ -93,10 +101,10 @@ def _impl(ctx):
     # C++ toolchain behavior.
     return cc_common.create_cc_toolchain_config_info(
         ctx = ctx,
-        toolchain_identifier = "cros-sdk-x86_64-cros-linux-gnu",
+        toolchain_identifier = "cros-sdk-" + triple,
         host_system_name = "linux",
         target_system_name = "local",
-        target_cpu = "x86_64",
+        target_cpu = arch,
         target_libc = "glibc-2.33",
         compiler = "clang",
         abi_version = "local",
@@ -104,10 +112,10 @@ def _impl(ctx):
         action_configs = action_configs,
         # TODO(cjmcdonald): Make builtin_sysroot an argument for the rule and figure out how
         #                   to pass it in.
-        builtin_sysroot = "/usr/x86_64-cros-linux-gnu",
+        builtin_sysroot = "/usr/" + triple,
         cxx_builtin_include_directories = [
             "/usr/lib64/clang/14.0.0",
-            "/usr/lib64/gcc/x86_64-cros-linux-gnu/10.2.0",
+            "/usr/lib64/gcc/{}/10.2.0".format(triple),
             "%sysroot%/usr/local/include",
             "%sysroot%/include",
             "%sysroot%/usr/include",
@@ -116,6 +124,8 @@ def _impl(ctx):
 
 board_cc_toolchain_config = rule(
     implementation = _impl,
-    attrs = {},
+    attrs = {
+        "cpu_arch": attr.string(mandatory = True),
+    },
     provides = [CcToolchainConfigInfo],
 )

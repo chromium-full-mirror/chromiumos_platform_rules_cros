@@ -13,7 +13,7 @@ def _get_rustlib_filenames(repo_ctx, target_triple):
     else:
         return None
 
-_TRIPLES = ["x86_64-pc-linux-gnu", "x86_64-cros-linux-gnu"]
+_TRIPLES = ["armv7a-cros-linux-gnueabihf", "x86_64-pc-linux-gnu", "x86_64-cros-linux-gnu"]
 
 _RUSTC_TOOLS = ["rustc", "cargo", "clippy-driver", "rustdoc", "rustfmt"]
 

@@ -31,10 +31,12 @@ def rules_cros_toolchains(name = "cros_toolchains"):
     cros_rust_repository(name = name)
 
     native.register_toolchains(
-        "@rules_cros//cros/toolchain/cc:cros-sdk-x86_64-pc-linux-gnu-cc-toolchain",
+        "@rules_cros//cros/toolchain/cc:cros-sdk-armv7a-cros-linux-gnu-cc-toolchain",
         "@rules_cros//cros/toolchain/cc:cros-sdk-x86_64-cros-linux-gnu-cc-toolchain",
-        "@rules_cros//cros/toolchain/rust:cros-sdk-x86_64-pc-linux-gnu-rust",
+        "@rules_cros//cros/toolchain/cc:cros-sdk-x86_64-pc-linux-gnu-cc-toolchain",
+        "@rules_cros//cros/toolchain/rust:cros-sdk-armv7a-cros-linux-gnueabihf-rust",
         "@rules_cros//cros/toolchain/rust:cros-sdk-x86_64-cros-linux-gnu-rust",
+        "@rules_cros//cros/toolchain/rust:cros-sdk-x86_64-pc-linux-gnu-rust",
         "@rules_cros//cros/toolchain/emulation:cros-sdk-x86_64-pc-linux-gnu-emulation",
         "@rules_cros//cros/toolchain/emulation:cros-sdk-x86_64-cros-linux-gnu-emulation",
     )
