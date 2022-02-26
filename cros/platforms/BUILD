@@ -4,29 +4,6 @@
 
 package(default_visibility = ["//visibility:public"])
 
-platform(
-    name = "linux_x86_64",
-    constraint_values = [
-        "@platforms//os:linux",
-        "@platforms//cpu:x86_64",
-        "//cros/platforms/vendor:pc",
-    ],
-)
+load(":platform.bzl", "define_platforms")
 
-platform(
-    name = "cros_armv7a",
-    constraint_values = [
-        "@platforms//os:linux",
-        "@platforms//cpu:armv7",
-        "//cros/platforms/vendor:cros",
-    ],
-)
-
-platform(
-    name = "cros_x86_64",
-    constraint_values = [
-        "@platforms//os:linux",
-        "@platforms//cpu:x86_64",
-        "//cros/platforms/vendor:cros",
-    ],
-)
+define_platforms()
