@@ -3,20 +3,11 @@
 # found in the LICENSE file.
 
 load("@rules_rust//rust:toolchain.bzl", "rust_toolchain")
-load(":rust_toolchain.bzl", "generate_board_rust_toolchain", "generate_host_rust_toolchain")
+load(":rust_toolchain.bzl", "generate_rust_toolchains")
 
 package(default_visibility = ["//visibility:public"])
 
 # TODO: These toolchain declarations should be templated into BUILD files in the
 # mapped repository so the file labels can dynamically refer to the right place
 # rather than being hardcoded like this.
-
-# Host toolchain
-generate_host_rust_toolchain()
-
-generate_board_rust_toolchain(cpu_arch = "x86_64")
-
-generate_board_rust_toolchain(
-    bazel_cpu_arch = "armv7",
-    cpu_arch = "armv7a",
-)
+generate_rust_toolchains()

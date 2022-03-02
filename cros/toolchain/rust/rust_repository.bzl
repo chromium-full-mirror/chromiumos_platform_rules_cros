@@ -1,5 +1,7 @@
 """cros_rust_repository is a repository rule for importing the Rust toolchain from the CrOS SDK."""
 
+load("//cros/toolchain:platforms.bzl", "all_toolchain_descs", "desc_to_triple")
+
 def _execute_bash(repo_ctx, cmd):
     return repo_ctx.execute(["/bin/bash", "-c", cmd]).stdout.strip("\n")
 
@@ -12,8 +14,6 @@ def _get_rustlib_filenames(repo_ctx, target_triple):
         return filenames.split("\n")
     else:
         return None
-
-_TRIPLES = ["armv7a-cros-linux-gnueabihf", "x86_64-pc-linux-gnu", "x86_64-cros-linux-gnu"]
 
 _RUSTC_TOOLS = ["rustc", "cargo", "clippy-driver", "rustdoc", "rustfmt"]
 
@@ -80,7 +80,8 @@ def _impl(repo_ctx):
 
     # For each target triple, symlink in every file we find under the
     # appropriate rustlib directory.
-    for triple in _TRIPLES:
+    for desc in all_toolchain_descs:
+        triple = desc_to_triple(desc)
         repo_ctx.file(
             "rust/lib/{triple}/BUILD".format(triple = triple),
             content = _RUSTLIB_BUILD_FILE_TEMPLATE,

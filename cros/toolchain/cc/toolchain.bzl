@@ -6,6 +6,7 @@ load(
     "flag_set",
     "tool",
 )
+load("//cros/toolchain:platforms.bzl", "all_toolchain_descs", "bazel_cpu_arch", "desc_to_triple")
 
 _DEFAULT_LINKER_FLAGS = [
     flag_set(
@@ -23,18 +24,11 @@ _DEFAULT_LINKER_FLAGS = [
 ]
 
 def _impl(ctx):
-    is_host = ctx.attr.is_host
-    if is_host:
-        vendor = "pc"
-    else:
-        vendor = "cros"
+    vendor = ctx.attr.vendor
+    is_host = vendor != "cros"
 
     arch = ctx.attr.cpu_arch
-    if arch == "armv7a":
-        abi = "gnueabihf"
-    else:
-        abi = "gnu"
-
+    abi = ctx.attr.abi
     triple = "{}-{}-linux-{}".format(arch, vendor, abi)
     usr_bin_triple = "/usr/bin/" + triple + "-"
     action_configs = [
@@ -142,25 +136,22 @@ def _impl(ctx):
 cc_toolchain_config = rule(
     implementation = _impl,
     attrs = {
+        "abi": attr.string(mandatory = True),
         "cpu_arch": attr.string(mandatory = True),
-        "is_host": attr.bool(mandatory = True),
+        "vendor": attr.string(mandatory = True),
     },
     provides = [CcToolchainConfigInfo],
 )
 
-def _generate_cc_toolchain(cpu_arch, is_host, bazel_cpu_arch = None):
-    if bazel_cpu_arch == None:
-        bazel_cpu_arch = cpu_arch
-
-    if is_host:
+def _generate_cc_toolchain(desc):
+    if desc.vendor == "pc":
         config_name = "host_toolchain_config"
-        vendor = "pc"
     else:
-        config_name = cpu_arch + "_board_toolchain_config"
-        vendor = "cros"
+        config_name = desc.cpu_arch + "_board_toolchain_config"
 
-    cc_toolchain_config(name = config_name, cpu_arch = cpu_arch, is_host = is_host)
-    cc_toolchain_name = "cros-sdk-{}-{}-linux-gnu-cc".format(cpu_arch, vendor)
+    triple = desc_to_triple(desc)
+    cc_toolchain_config(name = config_name, abi = desc.abi, cpu_arch = desc.cpu_arch, vendor = desc.vendor)
+    cc_toolchain_name = "cros-sdk-{}-cc".format(triple)
     native.cc_toolchain(
         name = cc_toolchain_name,
         all_files = ":none",
@@ -173,22 +164,20 @@ def _generate_cc_toolchain(cpu_arch, is_host, bazel_cpu_arch = None):
     )
 
     native.toolchain(
-        name = "cros-sdk-{}-{}-linux-gnu-cc-toolchain".format(cpu_arch, vendor),
+        name = "cros-sdk-{}-cc-toolchain".format(triple),
         exec_compatible_with = [
             "@platforms//cpu:x86_64",
             "@platforms//os:linux",
         ],
         target_compatible_with = [
-            "@platforms//cpu:" + bazel_cpu_arch,
+            bazel_cpu_arch(desc),
             "@platforms//os:linux",
-            "//cros/platforms/vendor:" + vendor,
+            "//cros/platforms/vendor:" + desc.vendor,
         ],
         toolchain = ":" + cc_toolchain_name,
         toolchain_type = "@bazel_tools//tools/cpp:toolchain_type",
     )
 
-def generate_board_cc_toolchain(cpu_arch, bazel_cpu_arch = None):
-    _generate_cc_toolchain(cpu_arch = cpu_arch, is_host = False, bazel_cpu_arch = bazel_cpu_arch)
-
-def generate_host_cc_toolchain():
-    _generate_cc_toolchain(cpu_arch = "x86_64", is_host = True)
+def generate_cc_toolchains():
+    for desc in all_toolchain_descs:
+        _generate_cc_toolchain(desc)

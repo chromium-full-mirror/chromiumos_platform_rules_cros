@@ -1,6 +1,7 @@
 # buildifier: disable=module-docstring
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 load("@bazel_tools//tools/build_defs/repo:utils.bzl", "maybe")
+load("//cros/toolchain:platforms.bzl", "all_toolchain_descs", "desc_to_triple")
 load("//cros/toolchain/rust:rust_repository.bzl", "cros_rust_repository")
 
 def rules_cros_dependencies():
@@ -30,13 +31,19 @@ def rules_cros_dependencies():
 def rules_cros_toolchains(name = "cros_toolchains"):
     cros_rust_repository(name = name)
 
-    native.register_toolchains(
-        "@rules_cros//cros/toolchain/cc:cros-sdk-armv7a-cros-linux-gnu-cc-toolchain",
-        "@rules_cros//cros/toolchain/cc:cros-sdk-x86_64-cros-linux-gnu-cc-toolchain",
-        "@rules_cros//cros/toolchain/cc:cros-sdk-x86_64-pc-linux-gnu-cc-toolchain",
-        "@rules_cros//cros/toolchain/rust:cros-sdk-armv7a-cros-linux-gnueabihf-rust",
-        "@rules_cros//cros/toolchain/rust:cros-sdk-x86_64-cros-linux-gnu-rust",
-        "@rules_cros//cros/toolchain/rust:cros-sdk-x86_64-pc-linux-gnu-rust",
+    toolchains = []
+    for desc in all_toolchain_descs:
+        triple = desc_to_triple(desc)
+        toolchains += [
+            "@rules_cros//cros/toolchain/cc:cros-sdk-{}-cc-toolchain".format(triple),
+            "@rules_cros//cros/toolchain/rust:cros-sdk-{}-rust".format(triple),
+        ]
+
+    # TODO(gbiv): Parameterize these and make them a part of the above loop,
+    # too.
+    toolchains += [
         "@rules_cros//cros/toolchain/emulation:cros-sdk-x86_64-pc-linux-gnu-emulation",
         "@rules_cros//cros/toolchain/emulation:cros-sdk-x86_64-cros-linux-gnu-emulation",
-    )
+    ]
+
+    native.register_toolchains(*toolchains)

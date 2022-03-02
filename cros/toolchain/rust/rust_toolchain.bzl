@@ -1,15 +1,13 @@
 load("@rules_rust//rust:toolchain.bzl", "rust_toolchain")
+load("//cros/toolchain:platforms.bzl", "all_toolchain_descs", "bazel_cpu_arch", "desc_to_triple", "host_toolchain_desc")
 
-def _generate_rust_toolchain(cpu_arch, vendor, bazel_cpu_arch = None, custom_target_triple = None):
-    if bazel_cpu_arch == None:
-        bazel_cpu_arch = cpu_arch
+def _generate_rust_toolchain(desc):
+    triple = desc_to_triple(desc)
 
-    abi = "gnu"
-    if cpu_arch == "armv7a":
-        abi = "gnueabihf"
-
-    triple = "{}-{}-linux-{}".format(cpu_arch, vendor, abi)
-    if custom_target_triple == None:
+    # TODO(b/215615637): Change this target triple back to x86_64-pc-linux-gnu
+    if desc.vendor == "pc":
+        custom_target_triple = triple.replace("-pc-", "-unknown-")
+    else:
         custom_target_triple = triple
 
     toolchain_name = "cros-sdk-{}-rust_impl".format(triple)
@@ -42,25 +40,14 @@ def _generate_rust_toolchain(cpu_arch, vendor, bazel_cpu_arch = None, custom_tar
             "@platforms//os:linux",
         ],
         target_compatible_with = [
-            "@platforms//cpu:" + bazel_cpu_arch,
+            bazel_cpu_arch(desc),
             "@platforms//os:linux",
-            "//cros/platforms/vendor:" + vendor,
+            "//cros/platforms/vendor:" + desc.vendor,
         ],
         toolchain = ":" + toolchain_name,
         toolchain_type = "@rules_rust//rust:toolchain",
     )
 
-def generate_host_rust_toolchain():
-    # TODO(b/215615637): Change this target triple back to x86_64-pc-linux-gnu
-    _generate_rust_toolchain(
-        cpu_arch = "x86_64",
-        vendor = "pc",
-        custom_target_triple = "x86_64-unknown-linux-gnu",
-    )
-
-def generate_board_rust_toolchain(cpu_arch, bazel_cpu_arch = None):
-    _generate_rust_toolchain(
-        cpu_arch = cpu_arch,
-        vendor = "cros",
-        bazel_cpu_arch = bazel_cpu_arch,
-    )
+def generate_rust_toolchains():
+    for desc in all_toolchain_descs:
+        _generate_rust_toolchain(desc)

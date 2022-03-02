@@ -1,7 +1,7 @@
 # Copyright 2022 The Chromium OS Authors. All rights reserved.
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
-load(":board_toolchain.bzl", "generate_board_cc_toolchain", "generate_host_cc_toolchain")
+load(":toolchain.bzl", "generate_cc_toolchains")
 
 package(default_visibility = ["//visibility:public"])
 
@@ -13,14 +13,7 @@ filegroup(
     srcs = [],
 )
 
-generate_host_cc_toolchain()
-
-generate_board_cc_toolchain(
-    bazel_cpu_arch = "armv7",
-    cpu_arch = "armv7a",
-)
-
-generate_board_cc_toolchain(cpu_arch = "x86_64")
+generate_cc_toolchains()
 
 # Workaround for https://github.com/bazelbuild/bazel/issues/12712
 cc_toolchain_suite(
