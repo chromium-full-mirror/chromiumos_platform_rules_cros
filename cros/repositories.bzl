@@ -37,13 +37,7 @@ def rules_cros_toolchains(name = "cros_toolchains"):
         toolchains += [
             "@rules_cros//cros/toolchain/cc:cros-sdk-{}-cc-toolchain".format(triple),
             "@rules_cros//cros/toolchain/rust:cros-sdk-{}-rust".format(triple),
+            "@rules_cros//cros/toolchain/emulation:cros-sdk-{}-emulation".format(triple),
         ]
-
-    # TODO(gbiv): Parameterize these and make them a part of the above loop,
-    # too.
-    toolchains += [
-        "@rules_cros//cros/toolchain/emulation:cros-sdk-x86_64-pc-linux-gnu-emulation",
-        "@rules_cros//cros/toolchain/emulation:cros-sdk-x86_64-cros-linux-gnu-emulation",
-    ]
 
     native.register_toolchains(*toolchains)
