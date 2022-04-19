@@ -49,4 +49,11 @@ all_toolchain_descs = [
         vendor = "cros",
         abi = "gnueabihf",
     ),
+
+    # Target aarch64 toolchain
+    ToolchainDesc(
+        cpu_arch = "aarch64",
+        vendor = "cros",
+        abi = "gnu",
+    ),
 ]
