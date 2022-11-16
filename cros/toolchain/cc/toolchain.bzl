@@ -94,11 +94,15 @@ def _impl(ctx):
         ),
     ]
 
+    clang_version = "15.0.0"
+    gcc_version = "10.2.0"
+
+    # FIXME(gbiv): Autodetect clang/gcc versions.
     if is_host:
         sysroot = None
         include_dirs = [
             "/usr/include/c++/v1",
-            "/usr/lib64/clang/14.0.0/include",
+            "/usr/lib64/clang/{}/include".format(clang_version),
             "/usr/local/include",
             "/include",
             "/usr/include",
@@ -106,8 +110,8 @@ def _impl(ctx):
     else:
         sysroot = "/usr/" + triple
         include_dirs = [
-            "/usr/lib64/clang/14.0.0",
-            "/usr/lib64/gcc/{}/10.2.0".format(triple),
+            "/usr/lib64/clang/" + clang_version,
+            "/usr/lib64/gcc/{}/{}".format(triple, gcc_version),
             "%sysroot%/usr/local/include",
             "%sysroot%/include",
             "%sysroot%/usr/include",
