@@ -1,0 +1,5 @@
+py_test(
+    name = "python3_test",
+    srcs = ["python3_test.py"],
+    python_version = "PY3",
+)

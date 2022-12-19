@@ -1,0 +1,8 @@
+load("//toolchains/nasm:repositories.bzl", "nasm_repositories")
+load("//toolchains/perl:repositories.bzl", "perl_repositories")
+load("//toolchains/rules_proto_grpc:repositories.bzl", "rules_proto_grpc_repositories")
+
+def toolchain_repositories():
+    nasm_repositories()
+    perl_repositories()
+    rules_proto_grpc_repositories()
