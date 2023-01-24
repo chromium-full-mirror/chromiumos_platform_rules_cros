@@ -1,6 +1,6 @@
 # We don't need to name our module, but the default is __main__, which isn't
 # very meaningful.
-module(name = "chromiumos", version = "0.1")
+module(name = "cros", version = "0.1")
 
 PY_VERSION = "3.10.8"
 bazel_dep(name = "rules_python", version = "0.16.1")
@@ -12,6 +12,7 @@ python.toolchain(
 use_repo(python, "python%s_toolchains" % PY_VERSION)
 register_toolchains("@python%s_toolchains//:all" % PY_VERSION)
 
+bazel_dep(name = "platforms", version = "0.0.5")
 bazel_dep(name = "protobuf", version = "3.19.6")
 bazel_dep(name = "rules_foreign_cc", version = "0.9.0")
 bazel_dep(name = "rules_pkg", version = "0.7.0")
