@@ -1,5 +1,5 @@
 load("@rules_foreign_cc//foreign_cc:defs.bzl", "configure_make")
-load("//third_party/rules_foreign_cc:standalone_binary.bzl", "foreign_cc_standalone_binary")
+load("//rules_cros/third_party/rules_foreign_cc:standalone_binary.bzl", "foreign_cc_standalone_binary")
 
 configure_make(
     name = "squashfuse_make",
@@ -23,8 +23,8 @@ configure_make(
         "libsquashfuse.so.0",
     ],
     deps = [
-        "//third_party/fuse",
-        "//third_party/lz4",
+        "//rules_cros/third_party/fuse",
+        "//rules_cros/third_party/lz4",
     ],
 )
 

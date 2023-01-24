@@ -10,7 +10,7 @@ def nasm_repositories():
     maybe(
         http_archive,
         name = "nasm",
-        build_file = Label("//toolchains/nasm:BUILD.nasm.bazel"),
+        build_file = Label("//rules_cros/toolchains/nasm:BUILD.nasm.bazel"),
         sha256 = CHECKSUM,
         strip_prefix = "nasm-%s" % VERSION,
         urls = [

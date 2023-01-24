@@ -1,5 +1,5 @@
 load("@rules_foreign_cc//foreign_cc:defs.bzl", "configure_make")
-load("//third_party/rules_foreign_cc:standalone_binary.bzl", "foreign_cc_standalone_binary")
+load("//rules_cros/third_party/rules_foreign_cc:standalone_binary.bzl", "foreign_cc_standalone_binary")
 
 configure_make(
     name = "e2fsprogs",
@@ -26,7 +26,7 @@ configure_make(
     install_prefix = "out",
     lib_source = "@e2fsprogs//:all_srcs",
     out_binaries = ["fuse2fs"],
-    deps = ["//third_party/fuse"],
+    deps = ["//rules_cros/third_party/fuse"],
 )
 
 foreign_cc_standalone_binary(
