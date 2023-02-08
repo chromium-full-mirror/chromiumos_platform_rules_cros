@@ -1,4 +1,6 @@
-#!/usr/bin/env python3
+# Copyright 2023 The ChromiumOS Authors.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
 
 """
 A bazelified cargo init. Calls cargo init under the hood, then sets up your
@@ -6,18 +8,11 @@ build files as required to make it a bazel package.
 """
 
 import argparse
-import importlib
 import os
 import pathlib
 import subprocess
 
-# importing python runfiles is currently incompatible with bzlmod because repo
-# mapping adds a "~" to the path.
-# https://github.com/bazelbuild/bazel/issues/16124
-spec = importlib.util.spec_from_file_location('runfiles',
-                                              '../rules_python~0.4.0/python/runfiles/runfiles.py')
-runfiles = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(runfiles)
+from python.runfiles import runfiles
 
 _BUILDOZER_COMMAND_FAILED = 2
 _BUILDOZER_NO_CHANGES = 3
