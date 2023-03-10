@@ -1,26 +1,7 @@
 load("@rules_foreign_cc//foreign_cc:providers.bzl", "ForeignCcDepsInfo")
+load("//rules_cros/toolchains/bash:defs.bzl", "BASH_RUNFILES_ATTRS", "runfiles_path", "wrap_binary_with_args")
 
-# Note that I found that #!/bin/sh did not work.
-# See https://stackoverflow.com/questions/59757296/ignore-failure-on-source-command-in-bash-script
-BASH_FILE_CONTENTS = """#!/bin/bash
-
-# --- begin runfiles.bash initialization v2 ---
-# Copy-pasted from the Bazel Bash runfiles library v2.
-set -uo pipefail; f=bazel_tools/tools/bash/runfiles/runfiles.bash
-source "${RUNFILES_DIR:-/dev/null}/$f" 2>/dev/null || \\
-source "$(grep -sm1 "^$f " "${RUNFILES_MANIFEST_FILE:-/dev/null}" | cut -f2- -d' ')" 2>/dev/null || \\
-source "$0.runfiles/$f" 2>/dev/null || \\
-source "$(grep -sm1 "^$f " "$0.runfiles_manifest" | cut -f2- -d' ')" 2>/dev/null || \\
-source "$(grep -sm1 "^$f " "$0.exe.runfiles_manifest" | cut -f2- -d' ')" 2>/dev/null || \\
-  { echo>&2 "ERROR: cannot find $f"; exit 1; }; f=; set -e
-# --- end runfiles.bash initialization v2 ---
-
-set -e
-
-export LD_LIBRARY_PATH={EXTRA_LIBRARIES}:${LD_LIBRARY_PATH:-}
-
-exec $(rlocation {WORKSPACE_NAME}/{BINARY_LOCATION}) "$@"
-"""
+_ENV_VARS = "export LD_LIBRARY_PATH={extra_libraries}:${{LD_LIBRARY_PATH:-}}"
 
 def _foreign_cc_standalone_binary_impl(ctx):
     out = ctx.actions.declare_file(ctx.label.name)
@@ -43,33 +24,27 @@ def _foreign_cc_standalone_binary_impl(ctx):
     deps = []
     for artifact in artifacts:
         deps.append(artifact.gen_dir)
-        lib_paths.append("$(rlocation {workspace_name}/{artifact_dir}/{lib_dir})".format(
-            artifact_dir = artifact.gen_dir.short_path,
+        lib_paths.append("$(rlocation {artifact_dir}/{lib_dir})".format(
+            artifact_dir = runfiles_path(ctx, artifact.gen_dir),
             lib_dir = artifact.lib_dir_name,
-            workspace_name = ctx.workspace_name,
         ))
 
-    ctx.actions.write(
-        output = out,
-        content = BASH_FILE_CONTENTS
-            .replace("{BINARY_LOCATION}", exe.short_path)
-            .replace("{EXTRA_LIBRARIES}", ":".join(lib_paths))
-            .replace("{WORKSPACE_NAME}", ctx.workspace_name),
-        is_executable = True,
-    )
-
-    runfiles = ctx.attr._bash_runfiles[DefaultInfo].files.to_list()
-    return DefaultInfo(
-        files = depset([out]),
-        runfiles = ctx.runfiles(files = [exe] + deps + runfiles),
-        executable = out,
+    return wrap_binary_with_args(
+        ctx,
+        out = out,
+        binary = exe,
+        args = [],
+        content_prefix = _ENV_VARS.format(
+            extra_libraries = ":".join(lib_paths),
+        ),
+        runfiles = ctx.runfiles(files = deps),
     )
 
 foreign_cc_standalone_binary = rule(
     _foreign_cc_standalone_binary_impl,
     attrs = dict(
         src = attr.label(mandatory = True, providers = [ForeignCcDepsInfo]),
-        _bash_runfiles = attr.label(default = "@bazel_tools//tools/bash/runfiles"),
+        **BASH_RUNFILES_ATTRS
     ),
     doc = "Creates a binary that uses shared libraries provided by foreign_cc.",
     executable = True,
