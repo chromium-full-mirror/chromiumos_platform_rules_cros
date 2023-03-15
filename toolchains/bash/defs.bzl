@@ -87,7 +87,7 @@ shift
 echo "$@" > ${dst}
 """
 
-def wrap_binary_with_args(ctx, out, binary, args, content_prefix = None, runfiles = None, data = []):
+def wrap_binary_with_args(ctx, out, binary, args, content_prefix = "", runfiles = None, data = []):
     """Generates a binary that runs another binary with some arguments.
 
     Args:
