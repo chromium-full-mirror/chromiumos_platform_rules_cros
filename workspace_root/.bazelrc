@@ -8,6 +8,14 @@
 
 # Bzlmod is the new dependency management system in bazel.
 common --experimental_enable_bzlmod
+# TODO(b/274698330): In the long term, we'll want to replace this with a GoB
+# mirror of the BCR.
+common --registry=https://bcr.bazel.build
+# TODO(b/274698330): In the long term, we'll want to replace this with a
+# GoB repo containing all bazel modules used throughout google. This shouldn't
+# be ChromeOS specific.
+common --registry=https://raw.githubusercontent.com/matts1/bazel-central-registry/main
+
 
 # Prevent writing to the remote cache if source files change during the build.
 # **DISABLED** Only useful when uploading artifacts from local builds, which we
