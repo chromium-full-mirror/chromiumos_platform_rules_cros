@@ -94,4 +94,8 @@ build --aspects=@rules_rust//rust:defs.bzl%rust_clippy_aspect --output_groups=+c
 # It's also recommended to run this config in combination with --keep_going,
 # otherwise it can only give you formatting errors for a single file.
 build:format --config=rustfmt
-build:rustfmt --aspects=@rules_rust//rust:defs.bzl%rustfmt_aspect --output_groups=+rustfmt_checks
+
+# Bzlmod doesn't yet have a way of defining a rustfmt toolchain.
+# Once it does, swap out this line for the one below.
+build:rustfmt --
+# build:rustfmt --aspects=@rules_rust//rust:defs.bzl%rustfmt_aspect --output_groups=+rustfmt_checks

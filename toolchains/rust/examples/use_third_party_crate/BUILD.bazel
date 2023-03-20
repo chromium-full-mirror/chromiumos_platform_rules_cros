@@ -1,10 +1,16 @@
-load("//rules_cros/toolchains/rust:defs.bzl", "rust_binary_crate", "rust_crate_test")
+load("@rules_rust//rust:defs.bzl", "rust_binary", "rust_test")
 
-rust_binary_crate(
+rust_binary(
     name = "use_third_party_crate",
+    srcs = ["src/main.rs"],
+    deps = [
+        "@alchemy_crates//:env_logger",
+        "@alchemy_crates//:log",
+        "@rules_rust//tools/runfiles",
+    ],
 )
 
-rust_crate_test(
+rust_test(
     name = "use_third_party_crate_test",
     crate = ":use_third_party_crate",
 )

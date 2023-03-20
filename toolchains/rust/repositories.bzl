@@ -5,7 +5,7 @@ CHECKSUM = "d541276e940ee84ab7f1531cc332f8f7320036a15c77379d5634e43fa4ed5f96"
 
 def rust_repositories():
     github_archive(
-        name = "rules_rust",
+        name = "rules_rust_non_bzlmod",
         checksum = CHECKSUM,
         github_user = "bazelbuild",
         github_repo = "rules_rust",

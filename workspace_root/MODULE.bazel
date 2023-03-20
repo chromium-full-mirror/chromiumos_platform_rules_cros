@@ -62,3 +62,29 @@ pip.parse(
     requirements_lock = "//rules_cros/toolchains/python:requirements_lock.txt",
 )
 use_repo(pip, "pip")
+
+# Rust support
+bazel_dep(name = "rules_rust", version = "0.19.0")
+
+rust_toolchains = use_extension("@rules_rust//rust:extensions.bzl", "toolchains")
+rust_toolchains.toolchain(edition = "2021")
+use_repo(
+    rust_toolchains,
+    # Rename it from <module_name>_rust_toolchains.
+    rust_toolchains = "cros_rust_toolchains",
+)
+register_toolchains("@rust_toolchains//:all")
+
+# Eventually this will be merged with metallurgy crates.
+crate = use_extension("@rules_rust//rust:extensions.bzl", "crate")
+crate.from_cargo(
+    suffix = "alchemy",
+    manifests = ["//rules_cros/toolchains/rust/alchemy_crates:Cargo.toml"],
+    cargo_lockfile = "//rules_cros/toolchains/rust/alchemy_crates:Cargo.lock",
+)
+
+use_repo(
+    crate,
+    # Rename it from <module_name>_crates to crates
+    alchemy_crates = "cros_crates_alchemy",
+)
