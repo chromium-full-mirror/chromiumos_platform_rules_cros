@@ -9,6 +9,7 @@ sh_runfiles_binary(
 
 custom_args_test(
     name = "custom_args_test",
+    size = "small",
     binary = ":read_runfiles",
     binary_args = [
         "cros/rules_cros/toolchains/testdata/example.txt",

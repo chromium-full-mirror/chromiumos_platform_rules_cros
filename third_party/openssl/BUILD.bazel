@@ -10,6 +10,7 @@ exports_files(
 
 cc_test(
     name = "openssl_test",
+    size = "small",
     srcs = ["openssl_test.cc"],
     linkopts = select({
         "@openssl//:msvc_compiler": [

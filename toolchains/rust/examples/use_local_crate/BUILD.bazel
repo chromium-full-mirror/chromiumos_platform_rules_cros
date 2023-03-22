@@ -8,5 +8,6 @@ rust_binary(
 
 rust_test(
     name = "use_local_crate_test",
+    size = "small",
     crate = ":use_local_crate",
 )

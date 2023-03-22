@@ -12,5 +12,6 @@ rust_binary(
 
 rust_test(
     name = "use_third_party_crate_test",
+    size = "small",
     crate = ":use_third_party_crate",
 )

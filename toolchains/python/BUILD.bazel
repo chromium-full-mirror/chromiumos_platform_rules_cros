@@ -14,6 +14,7 @@ alias(
 
 py_test(
     name = "pip_test",
+    size = "small",
     srcs = ["pip_test.py"],
     python_version = "PY3",
     deps = [requirement("pylint")],
@@ -21,6 +22,7 @@ py_test(
 
 py_test(
     name = "python3_test",
+    size = "small",
     srcs = ["python3_test.py"],
     data = ["//rules_cros/toolchains:testdata/example.txt"],
     python_version = "PY3",
