@@ -1,0 +1,9 @@
+#!/bin/bash
+
+# Copyright 2023 The ChromiumOS Authors.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+export RUNFILES_MANIFEST_ONLY=1
+
+exec $(rlocation rules_rust/tools/rust_analyzer/gen_rust_project) "$@"

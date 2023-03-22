@@ -5,30 +5,44 @@
 This repository provides common rules and configuration for Bazel projects in
 Chrome OS.
 
-## Usage
-
-`rules_cros` is only expected to function inside the Chrome OS SDK. You may copy
-the following snippet into your WORKSPACE file and fix up the relative path in
-`local_repository` to point from your project to where `rules_cros` is checked
-out.
-
-```python
-local_repository(
-    name = "rules_cros",
-    path = "../src/platform/rules_cros",
-)
-
-load("@rules_cros//cros:repositories.bzl", "rules_cros_dependencies")
-
-rules_cros_dependencies()
-```
-
-You will also need to symlink `.bazelrc` in the root of your project to
-[common.bazelrc](common.bazelrc) in this repo. You can put additional settings
-in a file named `user.bazelrc` in the root of your WORKSPACE and it will
-automatically be imported by `common.bazelrc`.
-
 ## Documentation
 
 The code is this directory is experimental and under active development.
 Stability and functionality is not guaranteed :)
+
+### Configuring dev experience
+#### Rust
+We use rust_analyzer to generate a `rust-project.json` file in the workspace root, which allows vscode to understand your dependencies.
+
+Simply install the [rust_analyzer](https://marketplace.visualstudio.com/items?itemName=matklad.rust-analyzer) VSCode plugin, and then add the following to your `.vscode/tasks.json` file, substituting TARGET for a label of any bazel target you want to depend on. VSCode will then analyze all the transitive dependencies of the specified targets.
+
+For example, I might use the following line:
+
+`"args": ["run", "//rules_cros/toolchains/rust:gen_rust_project", "--", "//rules_cros/toolchains/rust/examples/use_local_crate/...", "//rules_cros/toolchains/rust/examples/hello_world:helllo_world"],`
+
+```json
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Generate rust-project.json",
+            "command": "bazel",
+            "args": ["run", "//rules_cros/toolchains/rust:gen_rust_project", "--", "<TARGET1>", "<TARGET2>", "..."],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "group": "build",
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "never",
+                "panel": "dedicated",
+            },
+            "runOptions": {
+                "runOn": "folderOpen"
+            }
+        },
+    ]
+}
+```
+
+If you add a new file, you may need to manually re-run the task.

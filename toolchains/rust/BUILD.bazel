@@ -1,0 +1,15 @@
+load("//rules_cros/toolchains/bash:defs.bzl", "sh_runfiles_binary")
+
+# This is *very* hacky but it works.
+# The rust runfiles library doesn't work on targets outside the main repo, since
+# they won't reference anything in main, and thus _main -> rules_rust doesn't
+# appear in the repo mapping, so gen_rust_project can't access the runfiles.
+# To solve this, we just create a target in the main workspace that just execs
+# it, thus guaranteeing that _main appears in the repo mapping.
+sh_runfiles_binary(
+    name = "gen_rust_project",
+    src = "gen_rust_project.sh",
+    data = [
+        "@rules_rust//tools/rust_analyzer:gen_rust_project",
+    ],
+)
