@@ -70,14 +70,13 @@ pip.parse(
 use_repo(pip, "pip")
 
 # Rust support
-bazel_dep(name = "rules_rust", version = "0.19.0")
+bazel_dep(name = "rules_rust", version = "0.20.0")
 
-rust_toolchains = use_extension("@rules_rust//rust:extensions.bzl", "toolchains")
-rust_toolchains.toolchain(edition = "2021")
+rust = use_extension("@rules_rust//rust:extensions.bzl", "rust")
+rust.toolchain(edition = "2021")
 use_repo(
-    rust_toolchains,
-    # Rename it from <module_name>_rust_toolchains.
-    rust_toolchains = "cros_rust_toolchains",
+    rust,
+    "rust_toolchains",
 )
 register_toolchains("@rust_toolchains//:all")
 
