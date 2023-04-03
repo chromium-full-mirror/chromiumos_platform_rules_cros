@@ -112,7 +112,7 @@ def wrap_binary_with_args(ctx, out, binary, args, content_prefix = "", runfiles 
     if type(args) == "Args":
         # You can't read args in bazel rules. So instead we write the args to a
         # file and read from that file at runtime.
-        basename = out.basename.split(".")[0]
+        basename = out.basename.rsplit(".", 1)[0]
 
         # We could define a separate executable target, but that would mean that
         # users would need to add something like this attribute to their rule:
