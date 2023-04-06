@@ -3,7 +3,7 @@
 # found in the LICENSE file.
 
 load("@rules_rust//rust:toolchain.bzl", "rust_toolchain")
-load(":rust_toolchain.bzl", "generate_rust_toolchains")
+load("@cros//rules_cros/toolchains/rust/module_extension:rust_toolchain.bzl", "generate_rust_toolchains")
 
 package(default_visibility = ["//visibility:public"])
 

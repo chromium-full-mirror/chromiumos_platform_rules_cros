@@ -1,6 +1,6 @@
 """cros_rust_repository is a repository rule for importing the Rust toolchain from the CrOS SDK."""
 
-load("//cros/toolchain:platforms.bzl", "all_toolchain_descs", "desc_to_triple")
+load("//rules_cros/toolchains:platforms.bzl", "all_toolchain_descs", "desc_to_triple")
 
 def _execute_bash(repo_ctx, cmd):
     return repo_ctx.execute(["/bin/bash", "-c", cmd]).stdout.strip("\n")
@@ -17,31 +17,7 @@ def _get_rustlib_filenames(repo_ctx, target_triple):
 
 _RUSTC_TOOLS = ["rustc", "cargo", "clippy-driver", "rustdoc", "rustfmt"]
 
-# TODO: Remove the default public visibility once the toolchains are also
-#       declared in this generated repository.
-_RUSTLIB_BUILD_FILE_TEMPLATE = """\
-load("@rules_rust//rust:toolchain.bzl", "rust_stdlib_filegroup")
-
-package(default_visibility = ["//visibility:public"])
-
-filegroup(
-    name = "rustc_libs",
-    srcs = glob([
-        "lib/*.so",
-    ]),
-)
-
-rust_stdlib_filegroup(
-    name = "rust_libs",
-    srcs = glob([
-        "lib/*.rlib",
-        "lib/*.so",
-        "lib/*.a",
-    ]),
-)
-"""
-
-def _impl(repo_ctx):
+def rust_repo(repo_ctx):
     # Symlink necessary rustc binaryes and libraries into this repository so
     # that they can be mapped to Bazel labels and tracked as proper dependencies
     # via filegroups.
@@ -82,9 +58,9 @@ def _impl(repo_ctx):
     # appropriate rustlib directory.
     for desc in all_toolchain_descs:
         triple = desc_to_triple(desc)
-        repo_ctx.file(
+        repo_ctx.symlink(
+            repo_ctx.attr._rust_rustlib_build,
             "rust/lib/{triple}/BUILD".format(triple = triple),
-            content = _RUSTLIB_BUILD_FILE_TEMPLATE,
         )
 
         lib_files = _get_rustlib_filenames(repo_ctx, triple)
@@ -93,8 +69,9 @@ def _impl(repo_ctx):
                 "/usr/lib64/rustlib/{triple}/lib/{file}".format(triple = triple, file = rustc_file),
                 "rust/lib/{triple}/lib/{file}".format(triple = triple, file = rustc_file),
             )
+    repo_ctx.symlink(repo_ctx.attr._rust_toolchains_build, "rust/toolchains/BUILD.bazel")
 
-cros_rust_repository = repository_rule(
-    implementation = _impl,
-    local = True,
+RUST_ATTRS = dict(
+    _rust_toolchains_build = attr.label(allow_single_file=True, default=Label("//rules_cros/toolchains/rust/module_extension:BUILD.toolchain.bazel")),
+    _rust_rustlib_build = attr.label(allow_single_file=True, default=Label("//rules_cros/toolchains/rust/module_extension:BUILD.rustlib.bazel")),
 )

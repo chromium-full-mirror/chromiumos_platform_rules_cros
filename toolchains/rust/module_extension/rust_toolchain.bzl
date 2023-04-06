@@ -1,5 +1,6 @@
 load("@rules_rust//rust:toolchain.bzl", "rust_toolchain")
-load("//cros/toolchain:platforms.bzl", "all_toolchain_descs", "bazel_cpu_arch", "desc_to_triple", "host_toolchain_desc")
+load("//rules_cros/toolchains:platforms.bzl", "all_toolchain_descs", "bazel_cpu_arch", "desc_to_triple")
+
 
 def _generate_rust_toolchain(desc):
     triple = desc_to_triple(desc)
@@ -20,7 +21,7 @@ def _generate_rust_toolchain(desc):
         dylib_ext = ".so",
         os = "linux",
         rust_doc = "@cros_toolchains//rust/bin/x86_64-pc-linux-gnu:rustdoc",
-        rust_lib = "@cros_toolchains//rust/lib/{}:rust_libs".format(triple),
+        rust_std = "@cros_toolchains//rust/lib/{}:rust_stdlibs".format(triple),
         rustc = "@cros_toolchains//rust/bin/x86_64-pc-linux-gnu:rustc",
         rustc_lib = "@cros_toolchains//rust/lib/{}:rustc_libs".format(triple),
         rustfmt = "@cros_toolchains//rust/bin/x86_64-pc-linux-gnu:rustfmt",
@@ -31,6 +32,7 @@ def _generate_rust_toolchain(desc):
             "-lc++",
         ],
         target_triple = custom_target_triple,
+        exec_triple = "x86_64-unknown-linux-gnu"
     )
 
     native.toolchain(
@@ -42,11 +44,12 @@ def _generate_rust_toolchain(desc):
         target_compatible_with = [
             bazel_cpu_arch(desc),
             "@platforms//os:linux",
-            "//cros/platforms/vendor:" + desc.vendor,
+            "@cros//rules_cros/platforms/vendor:" + desc.vendor,
         ],
         toolchain = ":" + toolchain_name,
         toolchain_type = "@rules_rust//rust:toolchain",
     )
+
 
 def generate_rust_toolchains():
     for desc in all_toolchain_descs:
