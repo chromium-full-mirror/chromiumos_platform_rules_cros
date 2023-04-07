@@ -48,6 +48,8 @@ query --noexperimental_check_output_files --noexperimental_check_external_reposi
 build --experimental_reuse_sandbox_directories
 # Improve remote cache hit rate
 build --nostamp
+# Minimize remote cache downloads
+build --remote_download_toplevel
 
 # Avoid waiting on 'Waiting for build events upload: Build Event Service'
 build --bes_upload_mode=fully_async
