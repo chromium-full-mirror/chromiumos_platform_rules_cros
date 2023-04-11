@@ -1,34 +1,22 @@
 # Working with rust
 
-Our rust toolchain is built on top of cargo. Any packages you build with bazel should also be able to be built with cargo, and the source of truth is Cargo.toml files.
+Our rust toolchain is very different from cargo, and fits into bazel's norms.
 
 ## Creating a new 1st-party crate
-To create a crate called example_crate in the rules_cros/toolchains/rust/examples directory, you would run the following:
-
-`bazel run //rules_cros/toolchains/rust:cargo_init -- --[lib/bin] //rules_cros/toolchains/rust/examples/example_crate`
-
-If the bazel build target already existed, you can instead run:
-
-`bazel run //rules_cros/toolchains/rust:cargo_init -- --[lib/bin] //rules_cros/toolchains/rust/examples/example_crate:example_crate_rust`
-
-If you've already created a crate with the cargo tool, you can add the `--existing` flag to modify a crate that already exists.
+Similar to any other language, create a `.rs` file, and then create a `rust_library/binary` target which lists that file as it's `srcs`.
 
 ## Adding dependencies on crates
-Add the following line to your Cargo.toml file, then run `bazel run //rules_cros/toolchains/rust:update_crates -- --repin`.
-
-`<crate>.workspace = true`
-
+#### 1st-party crates
+Add the corresponding target to your deps.
 
 #### 3rd-party crates
-If you get an error saying that the crate doesn't exist, it's probably the first time anyone's used this crate.
-* Add it to `//:Cargo.toml`
-* Run `bazel run //rules_cros/toolchains/rust:update_crates -- --repin`.
+Add a dep on `@crates//:<crate name>` (for chromeos) or `@alchemy-crates//:<crate name>` (for infra).
 
-#### 1st-party crates
-You will also need to depend on the bazel target in your BUILD rule.
-```
-rust_binary_crate(
-    name = "use_local_crate",
-    deps = ["//rules_cros/toolchains/rust/examples/local_crate"],
-)
-```
+If the crate doesn't exist, or if the version needs to be updated, then:
+
+##### @alchemy-crates
+Modify the `//rules_cros/toolchains/rust/alchemy_crates/Cargo.toml`, then cd to the directory that contains it and run `cargo update --workspace` to update the lockfile.
+
+
+##### @crates
+Modify `//third_party/rust_crates/projects/.../Cargo.toml`, then run `third_party/rust_crates/vendor.py`.
