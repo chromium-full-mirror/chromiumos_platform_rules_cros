@@ -86,7 +86,8 @@ import %workspace%/rules_cros/bazelrcs/prebuilts.bazelrc
 try-import %workspace%/workspace.bazelrc
 
 # Run linters at build time.
-build --aspects=@rules_rust//rust:defs.bzl%rust_clippy_aspect --output_groups=+clippy_checks
+build:lint --config=clippy
+build:clippy --aspects=@rules_rust//rust:defs.bzl%rust_clippy_aspect --output_groups=+clippy_checks
 
 # Add a config to run formatter validation at build time.
 # It’s recommended to only enable this config in CI so formatting issues do not
