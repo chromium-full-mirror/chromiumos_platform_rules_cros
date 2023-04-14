@@ -102,3 +102,8 @@ build:format --config=rustfmt
 # Once it does, swap out this line for the one below.
 build:rustfmt --
 # build:rustfmt --aspects=@rules_rust//rust:defs.bzl%rustfmt_aspect --output_groups=+rustfmt_checks
+
+# When building rust, also add rustc output formatted as json to the bazel
+# outputs, so that it can be picked up by rust-analyzer.
+# This isn't needed by CQ - only by local builds, but the cost is negligible.
+build --@rules_rust//:output_diagnostics=true --output_groups=+rust_lib_rustc_output,+rust_metadata_rustc_output

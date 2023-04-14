@@ -70,7 +70,7 @@ pip.parse(
 use_repo(pip, "pip")
 
 # Rust support
-bazel_dep(name = "rules_rust", version = "0.20.0")
+bazel_dep(name = "rules_rust", version = "0.20.1")
 
 rust = use_extension("@rules_rust//rust:extensions.bzl", "rust")
 rust.toolchain(edition = "2021")
